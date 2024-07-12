@@ -20,7 +20,7 @@ DAS = SpecForkName('das')
 ELECTRA = SpecForkName('electra')
 WHISK = SpecForkName('whisk')
 EIP7594 = SpecForkName('eip7594')
-EIPXXXX = SpecForkName('eipxxxx')
+EIP7732 = SpecForkName('eip7732')
 
 #
 # SpecFork settings
@@ -45,7 +45,7 @@ LIGHT_CLIENT_TESTING_FORKS = (*[item for item in MAINNET_FORKS if item != PHASE0
 # The forks that output to the test vectors.
 TESTGEN_FORKS = (*MAINNET_FORKS, ELECTRA, EIP7594, WHISK, EIPXXXX)
 # Forks allowed in the test runner `--fork` flag, to fail fast in case of typos
-ALLOWED_TEST_RUNNER_FORKS = (*ALL_PHASES, WHISK)
+ALLOWED_TEST_RUNNER_FORKS = (*ALL_PHASES, WHISK, EIP7732)
 
 # NOTE: the same definition as in `pysetup/md_doc_paths.py`
 PREVIOUS_FORK_OF = {
@@ -59,7 +59,7 @@ PREVIOUS_FORK_OF = {
     # Experimental patches
     WHISK: CAPELLA,
     EIP7594: DENEB,
-    EIPXXXX: ELECTRA,
+    EIP7732: ELECTRA,
 }
 
 # For fork transition tests
