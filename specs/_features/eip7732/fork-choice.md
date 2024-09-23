@@ -343,31 +343,31 @@ def get_head(store: Store) -> ChildNode:
     while True:
         children = [
             ChildNode(root=root, slot=block.slot, is_payload_present=present) for (root, block) in blocks.items()
-            if block.parent_root == best_child.root and 
-            is_parent_node_full(store, block) == best_child.is_payload_present if 
-            root != store.justified_checkpoint.root
+            if block.parent_root == best_child.root and block.slot > best_child.slot and 
+            (best_child.root == justified_root or is_parent_node_full(store, block) == best_child.is_payload_present)
             for present in (True, False) if root in store.execution_payload_states or not present
         ]
         if len(children) == 0:
             return best_child
         # if we have children we consider the current head advanced as a possible head 
+        highest_child_slot = max(child.slot for child in children)
         children += [
             ChildNode(root=best_child.root, slot=best_child.slot + 1, is_payload_present=best_child.is_payload_present)
         ]
-        # Sort by latest attesting balance with ties broken lexicographically
-        # Ties broken by favoring full blocks according to the PTC vote
+        # Sort by latest attesting balance with
+        # Ties broken by the block's slot
+        # Ties are broken by the PTC vote
         # Ties are then broken by favoring full blocks
-        # Ties broken then by favoring higher slot numbers
         # Ties then broken by favoring block with lexicographically higher root
         new_best_child = max(children, key=lambda child: (
             get_weight(store, child), 
+            blocks[child.root].slot,
             is_payload_present(store, child.root), 
             child.is_payload_present, 
-            child.slot, 
             child.root
         )
         )
-        if new_best_child.root == best_child.root:
+        if new_best_child.root == best_child.root and new_best_child.slot >= highest_child_slot:
             return new_best_child
         best_child = new_best_child
 ```
@@ -430,7 +430,12 @@ def on_block(store: Store, signed_block: SignedBeaconBlock) -> None:
     # Add proposer score boost if the block is timely
     time_into_slot = (store.time - store.genesis_time) % SECONDS_PER_SLOT
     is_before_attesting_interval = time_into_slot < SECONDS_PER_SLOT // INTERVALS_PER_SLOT
-    if get_current_slot(store) == block.slot and is_before_attesting_interval:
+    is_timely = get_current_slot(store) == block.slot and is_before_attesting_interval
+    store.block_timeliness[hash_tree_root(block)] = is_timely
+
+    # Add proposer score boost if the block is timely and not conflicting with an existing block
+    is_first_block = store.proposer_boost_root == Root()
+    if is_timely and is_first_block:
         store.proposer_boost_root = hash_tree_root(block)
 
     # Update checkpoints in store if necessary
