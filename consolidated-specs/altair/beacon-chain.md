@@ -24,7 +24,7 @@
     - [Time parameters](#time-parameters)
     - [State list lengths](#state-list-lengths)
     - [Rewards and penalties](#rewards-and-penalties)
-      - [Note - phase0](#note---phase0)
+      - [Note - Phase0](#note---phase0)
       - [Note - Altair](#note---altair)
     - [Sync committee](#sync-committee)
     - [Max operations per block](#max-operations-per-block)
@@ -234,7 +234,7 @@ The following values are (non-configurable) constants used throughout the specif
 | `PROPOSER_WEIGHT`      | `uint64(8)`  |
 | `WEIGHT_DENOMINATOR`   | `uint64(64)` |
 
-*Note*: The sum of the weights equal `WEIGHT_DENOMINATOR`.
+*Altair Note*: The sum of the weights equal `WEIGHT_DENOMINATOR`.
 
 ### Misc
 
@@ -276,11 +276,11 @@ The following values are (non-configurable) constants used throughout the specif
 | `DOMAIN_SYNC_COMMITTEE_SELECTION_PROOF` | `DomainType('0x08000000')` |
 | `DOMAIN_CONTRIBUTION_AND_PROOF`         | `DomainType('0x09000000')` |
 
-*Note*: `DOMAIN_APPLICATION_MASK` reserves the rest of the bitspace in `DomainType` for application usage. This means for some `DomainType` `DOMAIN_SOME_APPLICATION`, `DOMAIN_SOME_APPLICATION & DOMAIN_APPLICATION_MASK` **MUST** be non-zero. This expression for any other `DomainType` in the consensus specs **MUST** be zero.
+*Phase0 Note*: `DOMAIN_APPLICATION_MASK` reserves the rest of the bitspace in `DomainType` for application usage. This means for some `DomainType` `DOMAIN_SOME_APPLICATION`, `DOMAIN_SOME_APPLICATION & DOMAIN_APPLICATION_MASK` **MUST** be non-zero. This expression for any other `DomainType` in the consensus specs **MUST** be zero.
 
 ## Preset
 
-*Note*: The below configuration is bundled as a preset: a bundle of configuration variables which are expected to differ
+*Phase0 Note*: The below configuration is bundled as a preset: a bundle of configuration variables which are expected to differ
 between different modes of operation, e.g. testing, but not generally between different networks.
 Additional preset configurations can be found in the [`configs`](../../configs) directory.
 
@@ -342,7 +342,7 @@ Additional preset configurations can be found in the [`configs`](../../configs) 
 | `MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR`    | `uint64(2**6)` (= 64)              |
 | `PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR` | `uint64(2)`                        |
 
-#### Note - phase0
+#### Note - Phase0
 
 - The `INACTIVITY_PENALTY_QUOTIENT` equals `INVERSE_SQRT_E_DROP_TIME**2` where `INVERSE_SQRT_E_DROP_TIME := 2**13` epochs (about 36 days) is the time it takes the inactivity penalty to reduce the balance of non-participating validators to about `1/sqrt(e) ~= 60.6%`. Indeed, the balance retained by offline validators after `n` epochs is about `(1 - 1/INACTIVITY_PENALTY_QUOTIENT)**(n**2/2)`; so after `INVERSE_SQRT_E_DROP_TIME` epochs, it is roughly `(1 - 1/INACTIVITY_PENALTY_QUOTIENT)**(INACTIVITY_PENALTY_QUOTIENT/2) ~= 1/sqrt(e)`. Note this value will be upgraded to `2**24` after Phase 0 mainnet stabilizes to provide a faster recovery in the event of an inactivity leak.
 
@@ -371,7 +371,7 @@ The spec does *not* override previous configuration values but instead creates n
 
 ## Configuration
 
-*Note*: The default mainnet configuration values are included here for illustrative purposes.
+*Phase0 Note*: The default mainnet configuration values are included here for illustrative purposes.
 Defaults for this more dynamic type of configuration are available with the presets in the [`configs`](../../configs) directory.
 Testnets and other types of chain instances may use a different configuration.
 
@@ -413,9 +413,9 @@ Testnets and other types of chain instances may use a different configuration.
 
 The following types are [SimpleSerialize (SSZ)](../../ssz/simple-serialize.md) containers.
 
-*Note*: The definitions are ordered topologically to facilitate execution of the spec.
+*Phase0 Note*: The definitions are ordered topologically to facilitate execution of the spec.
 
-*Note*: Fields missing in container instantiations default to their zero value.
+*Phase0 Note*: Fields missing in container instantiations default to their zero value.
 
 ### Misc dependencies
 
@@ -706,7 +706,7 @@ class SyncCommittee(Container):
 
 ## Helper functions
 
-*Note*: The definitions below are for specification purposes and are not necessarily optimal implementations.
+*Phase0 Note*: The definitions below are for specification purposes and are not necessarily optimal implementations.
 
 ### Math
 
@@ -1293,7 +1293,7 @@ def get_next_sync_committee_indices(state: BeaconState) -> Sequence[ValidatorInd
 
 #### `get_next_sync_committee`
 
-*Note*: The function `get_next_sync_committee` should only be called at sync committee period boundaries and when [upgrading state to Altair](./fork.md#upgrading-the-state).
+*Altair Note*: The function `get_next_sync_committee` should only be called at sync committee period boundaries and when [upgrading state to Altair](./fork.md#upgrading-the-state).
 
 ```python
 def get_next_sync_committee(state: BeaconState) -> SyncCommittee:
@@ -1315,9 +1315,9 @@ def get_base_reward_per_increment(state: BeaconState) -> Gwei:
 
 #### `get_base_reward`
 
-*Note*: The function `get_base_reward` is modified with the removal of `BASE_REWARDS_PER_EPOCH` and the use of increment based accounting.
+*Altair Note*: The function `get_base_reward` is modified with the removal of `BASE_REWARDS_PER_EPOCH` and the use of increment based accounting.
 
-*Note*: On average an optimally performing validator earns one base reward per epoch.
+*Altair Note*: On average an optimally performing validator earns one base reward per epoch.
 
 ```python
 def get_base_reward(state: BeaconState, index: ValidatorIndex) -> Gwei:
@@ -1450,7 +1450,7 @@ def initiate_validator_exit(state: BeaconState, index: ValidatorIndex) -> None:
 
 #### `slash_validator`
 
-*Note*: The function `slash_validator` is modified to use `MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR`
+*Altair Note*: The function `slash_validator` is modified to use `MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR`
 and use `PROPOSER_WEIGHT` when calculating the proposer reward.
 
 ```python
@@ -1526,7 +1526,7 @@ def initialize_beacon_state_from_eth1(eth1_block_hash: Hash32,
     return state
 ```
 
-*Note*: The ETH1 block with `eth1_timestamp` meeting the minimum genesis active validator count criteria can also occur before `MIN_GENESIS_TIME`.
+*Phase0 Note*: The ETH1 block with `eth1_timestamp` meeting the minimum genesis active validator count criteria can also occur before `MIN_GENESIS_TIME`.
 
 ### Genesis state
 
@@ -1657,7 +1657,7 @@ def get_attesting_balance(state: BeaconState, attestations: Sequence[PendingAtte
 
 #### Justification and finalization
 
-*Note*: The function `process_justification_and_finalization` is modified to adapt to the new participation records.
+*Altair Note*: The function `process_justification_and_finalization` is modified to adapt to the new participation records.
 
 ```python
 def process_justification_and_finalization(state: BeaconState) -> None:
@@ -1714,7 +1714,7 @@ def weigh_justification_and_finalization(state: BeaconState,
 
 #### Inactivity scores
 
-*Note*: The function `process_inactivity_updates` is new.
+*Altair Note*: The function `process_inactivity_updates` is new.
 
 ```python
 def process_inactivity_updates(state: BeaconState) -> None:
@@ -1894,7 +1894,7 @@ def get_attestation_deltas(state: BeaconState) -> Tuple[Sequence[Gwei], Sequence
 
 ##### `process_rewards_and_penalties`
 
-*Note*: The function `process_rewards_and_penalties` is modified to support the incentive accounting reforms.
+*Altair Note*: The function `process_rewards_and_penalties` is modified to support the incentive accounting reforms.
 
 ```python
 def process_rewards_and_penalties(state: BeaconState) -> None:
@@ -1939,7 +1939,7 @@ def process_registry_updates(state: BeaconState) -> None:
 
 #### Slashings
 
-*Note*: The function `process_slashings` is modified to use `PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR`.
+*Altair Note*: The function `process_slashings` is modified to use `PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR`.
 
 ```python
 def process_slashings(state: BeaconState) -> None:
@@ -2021,7 +2021,7 @@ def process_participation_record_updates(state: BeaconState) -> None:
 ```
 #### Participation flags updates
 
-*Note*: The function `process_participation_flag_updates` is new.
+*Altair Note*: The function `process_participation_flag_updates` is new.
 
 ```python
 def process_participation_flag_updates(state: BeaconState) -> None:
@@ -2031,7 +2031,7 @@ def process_participation_flag_updates(state: BeaconState) -> None:
 
 #### Sync committee updates
 
-*Note*: The function `process_sync_committee_updates` is new.
+*Altair Note*: The function `process_sync_committee_updates` is new.
 
 ```python
 def process_sync_committee_updates(state: BeaconState) -> None:
@@ -2165,7 +2165,7 @@ def process_attester_slashing(state: BeaconState, attester_slashing: AttesterSla
 
 ##### Attestations
 
-*Note*: The function `process_attestation` is modified to do incentive accounting with epoch participation flags.
+*Altair Note*: The function `process_attestation` is modified to do incentive accounting with epoch participation flags.
 
 ```python
 def process_attestation(state: BeaconState, attestation: Attestation) -> None:
@@ -2220,7 +2220,7 @@ def get_validator_from_deposit(pubkey: BLSPubkey, withdrawal_credentials: Bytes3
     )
 ```
 
-*Note*: The function `add_validator_to_registry` is modified to initialize `inactivity_scores`, `previous_epoch_participation`, and `current_epoch_participation`.
+*Altair Note*: The function `add_validator_to_registry` is modified to initialize `inactivity_scores`, `previous_epoch_participation`, and `current_epoch_participation`.
 
 ```python
 def add_validator_to_registry(state: BeaconState,
@@ -2308,7 +2308,7 @@ def process_voluntary_exit(state: BeaconState, signed_voluntary_exit: SignedVolu
 
 #### Sync aggregate processing
 
-*Note*: The function `process_sync_aggregate` is new.
+*Altair Note*: The function `process_sync_aggregate` is new.
 
 ```python
 def process_sync_aggregate(state: BeaconState, sync_aggregate: SyncAggregate) -> None:
